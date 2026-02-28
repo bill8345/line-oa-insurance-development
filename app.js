@@ -68,22 +68,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                 data = await response.json();
                 lastCalculationResult = data; // 備存結果
             } else {
-                // 如果後端沒開，先用假計算邏輯展示 UI
                 throw new Error("API failed");
             }
 
             showResult(data);
+            // 立即將折線圖推送給 LINE （不等關閉按鈕）
+            sendChartToLine(data);
         } catch (error) {
             console.warn("無法連接後端，使用前端預設計算作為展示備案", error);
-            // Fallback 前端簡易計算 (供開發中展示使用)
             const mockData = fallbackCalculate(payload);
-            lastCalculationResult = mockData; // 備存結果
+            lastCalculationResult = mockData;
             showResult(mockData);
+            // Fallback 時也嘗試推送
+            sendChartToLine(mockData);
         } finally {
             btn.classList.remove('loading');
             btn.disabled = false;
         }
     });
+
+    // 將折線圖試算結果 push 給 LINE
+    function sendChartToLine(data) {
+        if (!userLineId || !data) return;
+        const SEND_RESULT_API = API_URL.replace('/calculate', '/send_result');
+        fetch(SEND_RESULT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userLineId,
+                result: {
+                    total_need_basic: data.total_need_basic,
+                    total_need_with_fun: data.total_need_with_fun,
+                    total_fund: data.total_fund,
+                    gap: data.gap
+                },
+                history: data.history
+            })
+        })
+            .then(res => console.log("Chart push status:", res.status))
+            .catch(err => console.warn("推送折線圖失敗", err));
+    }
 
     // 3. 關閉按鈕 (第一階段)
     closeBtn.addEventListener('click', async () => {
@@ -200,34 +224,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     async function closeLiffOrHide() {
-        // 如果有 User ID 且有試算結果，必須先等待推送完成，再關視窗
-        if (userLineId && lastCalculationResult) {
-            const SEND_RESULT_API = API_URL.replace('/calculate', '/send_result');
-            try {
-                await fetch(SEND_RESULT_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userLineId,
-                        result: {
-                            total_need_basic: lastCalculationResult.total_need_basic,
-                            total_need_with_fun: lastCalculationResult.total_need_with_fun,
-                            total_fund: lastCalculationResult.total_fund,
-                            gap: lastCalculationResult.gap
-                        },
-                        history: lastCalculationResult.history
-                    })
-                });
-                console.log("Chart push to LINE succeeded!");
-            } catch (err) {
-                console.warn("Final push failed", err);
-            }
-        }
-
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
-            // 若為一般瀏覽器，則暫時隱藏區塊
             resultContainer.classList.add('hidden');
             prefContainer.classList.add('hidden');
             profileResultContainer.classList.add('hidden');
