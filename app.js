@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const payload = {
             current_age: parseInt(document.getElementById('current_age').value, 10),
             retire_age: parseInt(document.getElementById('retire_age').value, 10),
-            monthly_expense: parseFloat(document.getElementById('monthly_expense').value),
+            monthly_basic_expense: parseFloat(document.getElementById('monthly_basic_expense').value),
+            monthly_fun_expense: parseFloat(document.getElementById('monthly_fun_expense').value) || 0,
             monthly_saving: parseFloat(document.getElementById('monthly_saving').value),
             current_saving: parseFloat(document.getElementById('current_saving').value),
             user_id: userLineId // 若有成功取得就會送出字串，負責給後端 push_message
@@ -212,7 +213,8 @@ let myChart = null; // 儲存圖表實例
 function showResult(data) {
     const formatCurrency = (num) => new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', minimumFractionDigits: 0 }).format(num);
 
-    document.getElementById('res-need').innerText = formatCurrency(data.total_need);
+    document.getElementById('res-need-basic').innerText = formatCurrency(data.total_need_basic);
+    document.getElementById('res-need-all').innerText = formatCurrency(data.total_need_with_fun);
     document.getElementById('res-fund').innerText = formatCurrency(data.total_fund);
     document.getElementById('res-gap').innerText = formatCurrency(data.gap);
 
@@ -257,21 +259,33 @@ function renderChart(data) {
                 {
                     label: '預估實際存款累積',
                     data: hist.funds,
-                    borderColor: 'rgba(16, 185, 129, 1)', /* --accent color */
+                    borderColor: 'rgba(16, 185, 129, 1)', /* --accent color (Green) */
                     backgroundColor: 'rgba(16, 185, 129, 0.15)',
                     borderWidth: 3,
                     pointRadius: 0,
                     pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.4 /* slightly more wavy */
+                    tension: 0.4
                 },
                 {
-                    label: '退休總需求累積',
-                    data: hist.needs,
-                    borderColor: 'rgba(245, 158, 11, 1)', /* --primary color */
+                    label: '退休總需求 (僅生活)',
+                    data: hist.needs_basic,
+                    borderColor: 'rgba(59, 130, 246, 1)', /* Blue */
+                    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                    borderWidth: 3,
+                    borderDash: [3, 3],
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: '退休總需求 (含娛樂)',
+                    data: hist.needs_with_fun,
+                    borderColor: 'rgba(245, 158, 11, 1)', /* --primary color (Orange) */
                     backgroundColor: 'rgba(245, 158, 11, 0.15)',
                     borderWidth: 3,
-                    borderDash: [5, 5], /* sketchy dashed line */
+                    borderDash: [5, 5],
                     pointRadius: 0,
                     pointHoverRadius: 6,
                     fill: true,
@@ -343,10 +357,12 @@ function fallbackCalculate(p) {
 
     let history_ages = [p.current_age];
     let history_funds = [p.current_saving];
-    let history_needs = [0];
+    let history_needs_basic = [0];
+    let history_needs_with_fun = [0];
 
     let totalFund = p.current_saving;
-    let totalNeed = 0;
+    let totalNeedBasic = 0;
+    let totalNeedWithFun = 0;
 
     for (let y = 1; y <= yearsAlive; y++) {
         let currentYearAge = p.current_age + y;
@@ -356,22 +372,30 @@ function fallbackCalculate(p) {
 
         if (y > yearsToRetire) {
             let yearsInRetirement = y - yearsToRetire;
-            totalNeed += (p.monthly_expense * 12) * Math.pow(1.03, yearsInRetirement);
+            let inf = Math.pow(1.03, yearsInRetirement);
+            let basicExp = (p.monthly_basic_expense * 12) * inf;
+            let funExp = (p.monthly_fun_expense * 12) * inf;
+
+            totalNeedBasic += basicExp;
+            totalNeedWithFun += (basicExp + funExp);
         }
 
         history_ages.push(currentYearAge);
         history_funds.push(Math.round(totalFund));
-        history_needs.push(Math.round(totalNeed));
+        history_needs_basic.push(Math.round(totalNeedBasic));
+        history_needs_with_fun.push(Math.round(totalNeedWithFun));
     }
 
     return {
-        total_need: Math.round(totalNeed),
+        total_need_basic: Math.round(totalNeedBasic),
+        total_need_with_fun: Math.round(totalNeedWithFun),
         total_fund: Math.round(totalFund),
-        gap: Math.round(Math.max(0, totalNeed - totalFund)),
+        gap: Math.round(Math.max(0, totalNeedWithFun - totalFund)),
         history: {
             ages: history_ages,
             funds: history_funds,
-            needs: history_needs
+            needs_basic: history_needs_basic,
+            needs_with_fun: history_needs_with_fun
         }
     };
 }

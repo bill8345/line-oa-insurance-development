@@ -32,8 +32,14 @@
             </div>
 
             <div class="input-group">
-                <label for="monthly_expense">退休後每月花費 (NT$)</label>
-                <input type="number" id="monthly_expense" name="monthly_expense" placeholder="例如: 50000" required
+                <label for="monthly_basic_expense">退休後每月基本生活花費 (NT$)</label>
+                <input type="number" id="monthly_basic_expense" name="monthly_basic_expense" placeholder="例如: 30000"
+                    required min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_fun_expense">退休後每月娛樂花費 (例如：旅遊) (NT$)</label>
+                <input type="number" id="monthly_fun_expense" name="monthly_fun_expense" placeholder="例如: 10000"
                     min="0">
             </div>
 
@@ -57,15 +63,19 @@
         <div id="result-container" class="result-container hidden">
             <h2>試算結果</h2>
             <div class="result-card">
-                <p class="label">退休總需求</p>
-                <h3 id="res-need">NT$ 0</h3>
+                <p class="label">退休總需求 (僅計算基本生活費用)</p>
+                <h3 id="res-need-basic">NT$ 0</h3>
             </div>
             <div class="result-card">
-                <p class="label">預估實際存款</p>
+                <p class="label">退休總需求 (加上娛樂費用)</p>
+                <h3 id="res-need-all">NT$ 0</h3>
+            </div>
+            <div class="result-card">
+                <p class="label">預估實際存款累積</p>
                 <h3 id="res-fund">NT$ 0</h3>
             </div>
             <div class="result-card highlight">
-                <p class="label">資金缺口</p>
+                <p class="label">資金缺口 (以含娛樂為準)</p>
                 <h3 id="res-gap">NT$ 0</h3>
             </div>
 
