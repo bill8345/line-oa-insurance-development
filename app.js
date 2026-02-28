@@ -96,9 +96,9 @@ function showResult(data) {
     const gapCard = document.getElementById('res-gap').parentElement;
     if (data.gap <= 0) {
         gapCard.classList.remove('highlight');
-        gapCard.style.borderColor = "var(--primary)";
-        gapCard.style.background = "rgba(0, 195, 0, 0.1)";
-        document.getElementById('res-gap').style.color = "var(--primary)";
+        gapCard.style.borderColor = "var(--accent)";
+        gapCard.style.background = "rgba(16, 185, 129, 0.1)";
+        document.getElementById('res-gap').style.color = "var(--accent)";
     } else {
         gapCard.classList.add('highlight');
         gapCard.style.borderColor = "";
@@ -133,24 +133,25 @@ function renderChart(data) {
                 {
                     label: '預估實際存款累積',
                     data: hist.funds,
-                    borderColor: 'rgba(0, 195, 0, 1)',
-                    backgroundColor: 'rgba(0, 195, 0, 0.1)',
-                    borderWidth: 2,
+                    borderColor: 'rgba(16, 185, 129, 1)', /* --accent color */
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    borderWidth: 3,
                     pointRadius: 0,
                     pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4 /* slightly more wavy */
                 },
                 {
                     label: '退休總需求累積',
                     data: hist.needs,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    borderWidth: 2,
+                    borderColor: 'rgba(245, 158, 11, 1)', /* --primary color */
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    borderWidth: 3,
+                    borderDash: [5, 5], /* sketchy dashed line */
                     pointRadius: 0,
                     pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 }
             ]
         },
@@ -164,9 +165,11 @@ function renderChart(data) {
             plugins: {
                 legend: {
                     display: true,
-                    labels: { color: '#ffffff' }
+                    labels: { color: '#4a4036', font: { family: "'Mali', 'Noto Sans TC', sans-serif", weight: 'bold' } }
                 },
                 tooltip: {
+                    titleFont: { family: "'Mali', 'Noto Sans TC', sans-serif" },
+                    bodyFont: { family: "'Mali', 'Noto Sans TC', sans-serif" },
                     callbacks: {
                         label: function (context) {
                             let value = context.raw || 0;
@@ -178,9 +181,10 @@ function renderChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    grid: { color: 'rgba(74, 64, 54, 0.05)', borderDash: [4, 4] },
                     ticks: {
-                        color: '#8b949e',
+                        color: '#8c7e6c',
+                        font: { family: "'Mali', sans-serif" },
                         callback: function (value) {
                             if (value >= 100000000) return (value / 100000000).toFixed(1) + ' 億';
                             if (value >= 10000) return (value / 10000).toFixed(0) + ' 萬';
@@ -191,7 +195,8 @@ function renderChart(data) {
                 x: {
                     grid: { display: false },
                     ticks: {
-                        color: '#8b949e',
+                        color: '#8c7e6c',
+                        font: { family: "'Mali', sans-serif" },
                         maxTicksLimit: 10,
                         callback: function (value, index, values) {
                             return this.getLabelForValue(value) + ' 歲';
