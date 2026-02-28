@@ -86,8 +86,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 3. 關閉按鈕 (第一階段)
-    closeBtn.addEventListener('click', () => {
-        closeLiffOrHide();
+    closeBtn.addEventListener('click', async () => {
+        await closeLiffOrHide();
     });
 
     // === 第二階段：投資理財偏好 ===
@@ -195,28 +195,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 關閉按鈕 (最終階段)
-    finalCloseBtn.addEventListener('click', () => {
-        closeLiffOrHide();
+    finalCloseBtn.addEventListener('click', async () => {
+        await closeLiffOrHide();
     });
 
-    function closeLiffOrHide() {
-        // 如果有 User ID 且有試算結果，則在關閉前發送一次推送 (確保結果有回傳到 LINE)
+    async function closeLiffOrHide() {
+        // 如果有 User ID 且有試算結果，必須先等待推送完成，再關視窗
         if (userLineId && lastCalculationResult) {
             const SEND_RESULT_API = API_URL.replace('/calculate', '/send_result');
-            fetch(SEND_RESULT_API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: userLineId,
-                    result: {
-                        total_need_basic: lastCalculationResult.total_need_basic,
-                        total_need_with_fun: lastCalculationResult.total_need_with_fun,
-                        total_fund: lastCalculationResult.total_fund,
-                        gap: lastCalculationResult.gap
-                    },
-                    history: lastCalculationResult.history
-                })
-            }).catch(err => console.warn("Final push failed", err));
+            try {
+                await fetch(SEND_RESULT_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userLineId,
+                        result: {
+                            total_need_basic: lastCalculationResult.total_need_basic,
+                            total_need_with_fun: lastCalculationResult.total_need_with_fun,
+                            total_fund: lastCalculationResult.total_fund,
+                            gap: lastCalculationResult.gap
+                        },
+                        history: lastCalculationResult.history
+                    })
+                });
+                console.log("Chart push to LINE succeeded!");
+            } catch (err) {
+                console.warn("Final push failed", err);
+            }
         }
 
         if (liff.isInClient()) {
