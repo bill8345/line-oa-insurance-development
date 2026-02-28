@@ -1,7 +1,7 @@
 // 模擬後端 API (如果在本地測試沒有開 FastAPI，可以先用假資料，若有則 fetch)
 const API_URL = 'https://line-oa-backend-api.onrender.com/api/calculate'; // 修改成實際後端網址
 // 之後請換成真實的 LIFF ID (例如 1234567890-abcdefg)
-const LIFF_ID = '2009193152-ydz5o3uz';
+const LIFF_ID = '2009266696-WnRxhyYQ';
 
 let userLineId = null;
 let lastCalculationResult = null; // 儲存最後一次試算的完整資料，供關閉時回傳用
