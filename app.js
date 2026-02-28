@@ -26,6 +26,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resultContainer = document.getElementById('result-container');
     const closeBtn = document.getElementById('close-btn');
 
+    // 第二階段相關
+    const nextStepBtn = document.getElementById('next-step-btn');
+    const prefContainer = document.getElementById('preference-container');
+    const prefForm = document.getElementById('pref-form');
+    const prefSubmitBtn = document.getElementById('pref-submit-btn');
+    const prefBackBtn = document.getElementById('pref-back-btn');
+    const prefError = document.getElementById('pref-error');
+    const profileResultContainer = document.getElementById('profile-result-container');
+    const finalCloseBtn = document.getElementById('final-close-btn');
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -71,16 +81,105 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 3. 關閉按鈕 (回傳或結束)
+    // 3. 關閉按鈕 (第一階段)
     closeBtn.addEventListener('click', () => {
-        // 若在 LINE App 內開啟，直接關閉 LIFF 視窗回到對話
+        closeLiffOrHide();
+    });
+
+    // === 第二階段：投資理財偏好 ===
+
+    // 點擊「進一步了解」，隱藏結果，顯示投資表單
+    nextStepBtn.addEventListener('click', () => {
+        resultContainer.classList.add('hidden');
+        prefContainer.classList.remove('hidden');
+        prefContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // 點擊「返回上一步」，隱藏投資表單，顯示原本結果
+    prefBackBtn.addEventListener('click', () => {
+        prefContainer.classList.add('hidden');
+        profileResultContainer.classList.add('hidden');
+        resultContainer.classList.remove('hidden');
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // 送出投資理財偏好表單
+    prefForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        prefSubmitBtn.classList.add('loading');
+        prefSubmitBtn.disabled = true;
+        prefError.classList.add('hidden');
+
+        // 取得輸入值
+        const stock = parseFloat(document.getElementById('pref_stock').value) || 0;
+        const fund = parseFloat(document.getElementById('pref_fund').value) || 0;
+        const insurance = parseFloat(document.getElementById('pref_insurance').value) || 0;
+        const demand = parseFloat(document.getElementById('pref_demand').value) || 0;
+        const time = parseFloat(document.getElementById('pref_time').value) || 0;
+
+        const total = stock + fund + insurance + demand + time;
+
+        // 模擬短暫 loading 感
+        setTimeout(() => {
+            prefSubmitBtn.classList.remove('loading');
+            prefSubmitBtn.disabled = false;
+
+            if (Math.abs(total - 100) > 0.01) {
+                // 檢查是否為 100%
+                prefError.classList.remove('hidden');
+                return;
+            }
+
+            // 計算邏輯
+            const highRisk = stock + fund;
+            const lowRisk = insurance + demand + time;
+
+            let profileName = "穩健型";
+            let profileColor = "var(--primary)"; // 橘黃色
+            let profileBgColor = "rgba(245, 158, 11, 0.1)";
+
+            if (highRisk >= 60 && lowRisk <= 40) {
+                profileName = "積極型";
+                profileColor = "var(--danger)"; // 紅色
+                profileBgColor = "rgba(239, 68, 68, 0.1)";
+            } else if (highRisk <= 40 && lowRisk >= 60) {
+                profileName = "保守型";
+                profileColor = "var(--accent)"; // 綠色
+                profileBgColor = "rgba(16, 185, 129, 0.1)";
+            }
+
+            // 顯示結果
+            const resProfileEl = document.getElementById('res-profile');
+            const profileCard = document.getElementById('profile-card');
+
+            resProfileEl.innerText = profileName;
+            resProfileEl.style.color = profileColor;
+            profileCard.style.borderColor = profileColor;
+            profileCard.style.backgroundColor = profileBgColor;
+
+            prefContainer.classList.add('hidden');
+            profileResultContainer.classList.remove('hidden');
+            profileResultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+        }, 500);
+    });
+
+    // 關閉按鈕 (最終階段)
+    finalCloseBtn.addEventListener('click', () => {
+        closeLiffOrHide();
+    });
+
+    function closeLiffOrHide() {
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
-            // 若為一般瀏覽器，則暫時隱藏結果展示區塊讓使用者能繼續點擊
+            // 若為一般瀏覽器，則暫時隱藏區塊
             resultContainer.classList.add('hidden');
+            prefContainer.classList.add('hidden');
+            profileResultContainer.classList.add('hidden');
         }
-    });
+    }
 });
 
 let myChart = null; // 儲存圖表實例

@@ -73,7 +73,81 @@
                 <canvas id="resultChart"></canvas>
             </div>
 
+            <button class="submit-btn" id="next-step-btn" type="button" style="margin-top: 30px;">
+                進一步了解投資理財偏好
+            </button>
+
             <button class="close-btn" id="close-btn">關閉並回傳 LINE</button>
+        </div>
+
+        <!-- 投資理財偏好表單 (預設隱藏) -->
+        <div id="preference-container" class="preference-container hidden">
+            <div class="header" style="margin-top: 0;">
+                <h1 style="font-size: 26px;">投資理財偏好</h1>
+                <p>請輸入目前投資理財的資金占比</p>
+            </div>
+
+            <form id="pref-form">
+                <div class="input-group">
+                    <label for="pref_stock">股票 (%)</label>
+                    <input type="number" id="pref_stock" name="pref_stock" placeholder="例如: 30" required min="0"
+                        max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_fund">基金 (%)</label>
+                    <input type="number" id="pref_fund" name="pref_fund" placeholder="例如: 20" required min="0"
+                        max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_insurance">理財型保險 (%)</label>
+                    <input type="number" id="pref_insurance" name="pref_insurance" placeholder="例如: 20" required min="0"
+                        max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_demand">活期存款 (%)</label>
+                    <input type="number" id="pref_demand" name="pref_demand" placeholder="例如: 10" required min="0"
+                        max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_time">定期存款 (%)</label>
+                    <input type="number" id="pref_time" name="pref_time" placeholder="例如: 20" required min="0"
+                        max="100">
+                </div>
+
+                <p id="pref-error" class="hidden"
+                    style="color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 10px;">總和必須等於 100%
+                </p>
+
+                <button type="submit" class="submit-btn" id="pref-submit-btn">
+                    <span>開始分析</span>
+                    <div class="spinner"></div>
+                </button>
+                <button type="button" class="close-btn" id="pref-back-btn" style="margin-top: 15px;">返回上一步</button>
+            </form>
+        </div>
+
+        <!-- 理財人格結果 (預設隱藏) -->
+        <div id="profile-result-container" class="result-container hidden">
+            <h2>理財人格分析</h2>
+
+            <div class="result-card profile-card" id="profile-card">
+                <p class="label">專屬理財類型</p>
+                <h3 id="res-profile">判斷中...</h3>
+            </div>
+
+            <p id="res-profile-desc"
+                style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 10px; margin-bottom: 20px;">
+                根據您的資產配置習慣所分析出的類型。
+            </p>
+
+            <button class="close-btn" id="final-close-btn"
+                style="background: var(--primary); color: white; border-color: var(--border-color);">
+                完成並關閉
+            </button>
         </div>
     </div>
 
