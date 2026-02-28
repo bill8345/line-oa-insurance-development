@@ -138,25 +138,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             let profileName = "穩健型";
             let profileColor = "var(--primary)"; // 橘黃色
             let profileBgColor = "rgba(245, 158, 11, 0.1)";
+            let profileImgSrc = "./images/robust.jpg";
 
             if (highRisk >= 60 && lowRisk <= 40) {
                 profileName = "積極型";
                 profileColor = "var(--danger)"; // 紅色
                 profileBgColor = "rgba(239, 68, 68, 0.1)";
+                profileImgSrc = "./images/aggressive.jpg";
             } else if (highRisk <= 40 && lowRisk >= 60) {
                 profileName = "保守型";
                 profileColor = "var(--accent)"; // 綠色
                 profileBgColor = "rgba(16, 185, 129, 0.1)";
+                profileImgSrc = "./images/conservative.jpg";
             }
 
             // 顯示結果
             const resProfileEl = document.getElementById('res-profile');
             const profileCard = document.getElementById('profile-card');
+            const profileImg = document.getElementById('profile-img');
 
             resProfileEl.innerText = profileName;
             resProfileEl.style.color = profileColor;
             profileCard.style.borderColor = profileColor;
             profileCard.style.backgroundColor = profileBgColor;
+
+            // 顯示圖片
+            profileImg.src = profileImgSrc;
+            profileImg.classList.remove('hidden');
 
             prefContainer.classList.add('hidden');
             profileResultContainer.classList.remove('hidden');
