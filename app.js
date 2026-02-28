@@ -170,6 +170,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             profileResultContainer.classList.remove('hidden');
             profileResultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
+            // 若有 user ID，則呼叫後端 API 傳送圖片給 User
+            if (userLineId) {
+                const profilePayload = {
+                    user_id: userLineId,
+                    profile_type: profileName,
+                    image_url: `https://bill8345.github.io/line-oa-insurance-development/images/${profileImgSrc.split('/').pop()}`
+                };
+
+                const SEND_PROFILE_API = API_URL.replace('/calculate', '/send_profile');
+
+                fetch(SEND_PROFILE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profilePayload)
+                }).catch(err => console.warn("Failed to push profile to LINE", err));
+            }
+
         }, 500);
     });
 
