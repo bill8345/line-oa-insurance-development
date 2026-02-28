@@ -4,6 +4,7 @@ const API_URL = 'https://line-oa-backend-api.onrender.com/api/calculate'; // 修
 const LIFF_ID = '2009193152-ydz5o3uz';
 
 let userLineId = null;
+let lastCalculationResult = null; // 儲存最後一次試算的完整資料，供關閉時回傳用
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. 初始化 LIFF
@@ -65,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let data;
             if (response.ok) {
                 data = await response.json();
+                lastCalculationResult = data; // 備存結果
             } else {
                 // 如果後端沒開，先用假計算邏輯展示 UI
                 throw new Error("API failed");
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.warn("無法連接後端，使用前端預設計算作為展示備案", error);
             // Fallback 前端簡易計算 (供開發中展示使用)
             const mockData = fallbackCalculate(payload);
+            lastCalculationResult = mockData; // 備存結果
             showResult(mockData);
         } finally {
             btn.classList.remove('loading');
@@ -197,6 +200,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function closeLiffOrHide() {
+        // 如果有 User ID 且有試算結果，則在關閉前發送一次推送 (確保結果有回傳到 LINE)
+        if (userLineId && lastCalculationResult) {
+            const SEND_RESULT_API = API_URL.replace('/calculate', '/send_result');
+            fetch(SEND_RESULT_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userLineId,
+                    result: {
+                        total_need_basic: lastCalculationResult.total_need_basic,
+                        total_need_with_fun: lastCalculationResult.total_need_with_fun,
+                        total_fund: lastCalculationResult.total_fund,
+                        gap: lastCalculationResult.gap
+                    },
+                    history: lastCalculationResult.history
+                })
+            }).catch(err => console.warn("Final push failed", err));
+        }
+
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
