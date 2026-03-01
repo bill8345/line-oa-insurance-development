@@ -4,6 +4,7 @@ const API_URL = 'https://line-oa-backend-api.onrender.com/api/calculate'; // 修
 const LIFF_ID = '2009266916-K37D2gsC';
 
 let userLineId = null;
+let userLineName = null; // 新增：用來記錄 LINE 暱稱
 let lastCalculationResult = null; // 儲存最後一次試算的完整資料，供關閉時回傳用
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -13,7 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
             userLineId = profile.userId;
-            console.log("登入成功，User ID:", userLineId);
+            userLineName = profile.displayName;
+            console.log("登入成功，User ID:", userLineId, "User Name:", userLineName);
         } else {
             console.log("未登入 LINE (例如在外部瀏覽器開啟)");
             // 視需求可呼叫 liff.login() 強制登入
@@ -52,7 +54,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             monthly_fun_expense: parseFloat(document.getElementById('monthly_fun_expense').value) || 0,
             monthly_saving: parseFloat(document.getElementById('monthly_saving').value),
             current_saving: parseFloat(document.getElementById('current_saving').value),
-            user_id: userLineId // 若有成功取得就會送出字串，負責給後端 push_message
+            user_id: userLineId, // 若有成功取得就會送出字串，負責給後端 push_message
+            user_name: userLineName // LINE 暱稱
         };
 
         try {
@@ -202,6 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (userLineId) {
                 const profilePayload = {
                     user_id: userLineId,
+                    user_name: userLineName,
                     profile_type: profileName,
                     image_url: `https://bill8345.github.io/line-oa-insurance-development/images/${profileImgSrc.split('/').pop()}`
                 };
