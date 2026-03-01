@@ -207,7 +207,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     user_id: userLineId,
                     user_name: userLineName,
                     profile_type: profileName,
-                    image_url: `https://bill8345.github.io/line-oa-insurance-development/images/${profileImgSrc.split('/').pop()}`
+                    image_url: `https://bill8345.github.io/line-oa-insurance-development/images/${profileImgSrc.split('/').pop()}`,
+                    stock: stock,
+                    fund: fund,
+                    insurance: insurance,
+                    demand: demand,
+                    time_deposit: time
                 };
 
                 const SEND_PROFILE_API = API_URL.replace('/calculate', '/send_profile');
