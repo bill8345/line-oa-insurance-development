@@ -271,6 +271,14 @@ function showResult(data) {
 
     renderChart(data);
 
+    // 更新圖表提示文字（顯示交叉點年齡）
+    const hintEl = document.getElementById('chart-hint-text');
+    if (data.crossover_age) {
+        hintEl.innerText = `當綠色線（存款）與橘色線（需求）交叉時，代表存款即將用盡。依您目前的規劃，約在 ${data.crossover_age} 歲時存款將不足以支應退休開銷。`;
+    } else {
+        hintEl.innerText = '恭喜！依您目前的規劃，存款預估可支撐退休生活至 100 歲。';
+    }
+
     document.getElementById('result-container').classList.remove('hidden');
     // 捲動至結果
     setTimeout(() => {
@@ -423,11 +431,21 @@ function fallbackCalculate(p) {
         history_needs_with_fun.push(Math.round(totalNeedWithFun));
     }
 
+    // 找出交叉點年齡
+    let crossoverAge = null;
+    for (let i = 1; i < history_ages.length; i++) {
+        if (history_needs_with_fun[i] > 0 && history_needs_with_fun[i] >= history_funds[i]) {
+            crossoverAge = history_ages[i];
+            break;
+        }
+    }
+
     return {
         total_need_basic: Math.round(totalNeedBasic),
         total_need_with_fun: Math.round(totalNeedWithFun),
         total_fund: Math.round(totalFund),
         gap: Math.round(Math.max(0, totalNeedWithFun - totalFund)),
+        crossover_age: crossoverAge,
         history: {
             ages: history_ages,
             funds: history_funds,
