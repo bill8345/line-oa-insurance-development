@@ -148,8 +148,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const insurance = parseFloat(document.getElementById('pref_insurance').value) || 0;
         const demand = parseFloat(document.getElementById('pref_demand').value) || 0;
         const time = parseFloat(document.getElementById('pref_time').value) || 0;
+        const crypto = parseFloat(document.getElementById('pref_crypto').value) || 0;
 
-        const total = stock + fund + insurance + demand + time;
+        const total = stock + fund + insurance + demand + time + crypto;
 
         // 模擬短暫 loading 感
         setTimeout(() => {
@@ -163,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // 計算邏輯
-            const highRisk = stock + fund;
+            const highRisk = stock + fund + crypto;
             const lowRisk = insurance + demand + time;
 
             let profileName = "穩健型";
@@ -212,7 +213,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     fund: fund,
                     insurance: insurance,
                     demand: demand,
-                    time_deposit: time
+                    time_deposit: time,
+                    crypto: crypto
                 };
 
                 const SEND_PROFILE_API = API_URL.replace('/calculate', '/send_profile');
