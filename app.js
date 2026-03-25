@@ -103,7 +103,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     total_need_basic: data.total_need_basic,
                     total_need_with_fun: data.total_need_with_fun,
                     total_fund: data.total_fund,
-                    gap: data.gap
+                    gap: data.gap,
+                    crossover_age: data.crossover_age || null
                 },
                 history: data.history
             })
