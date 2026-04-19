@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退休金試算</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 LIFF SDK (選擇性) -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+
+<body>
+    <div class="glass-container">
+        <div class="header">
+            <h1>財富規劃</h1>
+            <p>探索您的退休金準備，為未來規劃</p>
+        </div>
+
+        <form id="calc-form">
+            <div class="input-group">
+                <label for="current_age">目前年齡</label>
+                <input type="number" id="current_age" name="current_age" placeholder="例如: 30" required min="1" max="99">
+            </div>
+
+            <div class="input-group">
+                <label for="retire_age">預計退休年齡</label>
+                <input type="number" id="retire_age" name="retire_age" placeholder="例如: 65" required min="1" max="99">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_basic_expense">退休後每月基本生活花費 (NT$)</label>
+                <input type="number" id="monthly_basic_expense" name="monthly_basic_expense" placeholder="例如: 30000"
+                    required min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_fun_expense">退休後每月娛樂花費 (例如：旅遊) (NT$)</label>
+                <input type="number" id="monthly_fun_expense" name="monthly_fun_expense" placeholder="例如: 10000"
+                    min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_saving">每月可存款金額 (NT$)</label>
+                <input type="number" id="monthly_saving" name="monthly_saving" placeholder="例如: 20000" required min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="current_saving">目前總存款 (NT$)</label>
+                <input type="number" id="current_saving" name="current_saving" placeholder="例如: 1000000" required
+                    min="0">
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <span>開始試算</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div id="result-container" class="result-container hidden">
+            <h2>試算結果</h2>
+            <div class="result-card">
+                <p class="label">退休總需求 (僅計算基本生活費用)</p>
+                <h3 id="res-need-basic">NT$ 0</h3>
+            </div>
+            <div class="result-card">
+                <p class="label">退休總需求 (加上娛樂費用)</p>
+                <h3 id="res-need-all">NT$ 0</h3>
+            </div>
+            <div class="result-card">
+                <p class="label">預估實際存款累積</p>
+                <h3 id="res-fund">NT$ 0</h3>
+            </div>
+            <div class="result-card highlight">
+                <p class="label">資金缺口 (以含娛樂為準)</p>
+                <h3 id="res-gap">NT$ 0</h3>
+            </div>
+
+            <div class="chart-container" style="position: relative; height:300px; width:100%; margin-top:20px;">
+                <canvas id="resultChart"></canvas>
+            </div>
+
+            <div class="chart-hint">
+                <p>📌 <strong>圖表怎麼看？</strong></p>
+                <p id="chart-hint-text">當綠色線（存款）與橘色線（需求）交叉時，代表存款即將用盡的年齡。</p>
+            </div>
+
+            <div class="calc-assumptions">
+                <p>⚙️ 計算假設條件：通膨率 3% ／ 存款利率 1.7% ／ 預計壽命 90 歲</p>
+            </div>
+
+
+
+            <button class="close-btn" id="close-btn">建議截圖您的結果後關閉</button>
+        </div>
+
+
+    </div>
+
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app_v2.js"></script>
+</body>
+
+</html>
