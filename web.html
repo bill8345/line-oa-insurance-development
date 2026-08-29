@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退休金試算</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .expired-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .expired-screen .expired-icon {
+            font-size: 56px;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .expired-screen h1 {
+            font-size: 26px;
+            color: var(--text-main);
+            margin-bottom: 14px;
+        }
+
+        .expired-screen p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-container hidden" id="expired-container">
+        <div class="expired-screen">
+            <div class="expired-icon">⌛</div>
+            <h1>此連結已失效</h1>
+            <p>本次試算活動已結束，<br>感謝您的參與。</p>
+        </div>
+    </div>
+
+    <div class="glass-container" id="main-container">
+        <div class="header">
+            <h1>財富規劃</h1>
+            <p>探索您的退休金準備，為未來規劃</p>
+        </div>
+
+        <form id="calc-form">
+            <div class="input-group">
+                <label for="current_age">目前年齡</label>
+                <input type="number" id="current_age" name="current_age" placeholder="例如: 30" required min="1" max="99">
+            </div>
+
+            <div class="input-group">
+                <label for="retire_age">預計退休年齡</label>
+                <input type="number" id="retire_age" name="retire_age" placeholder="例如: 65" required min="1" max="99">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_basic_expense">退休後每月基本生活花費 (NT$)</label>
+                <input type="number" id="monthly_basic_expense" name="monthly_basic_expense" placeholder="例如: 30000"
+                    required min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_fun_expense">退休後每月娛樂花費 (例如：旅遊) (NT$)</label>
+                <input type="number" id="monthly_fun_expense" name="monthly_fun_expense" placeholder="例如: 10000"
+                    min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="monthly_saving">每月可存款金額 (NT$)</label>
+                <input type="number" id="monthly_saving" name="monthly_saving" placeholder="例如: 20000" required min="0">
+            </div>
+
+            <div class="input-group">
+                <label for="current_saving">目前總存款 (NT$)</label>
+                <input type="number" id="current_saving" name="current_saving" placeholder="例如: 1000000" required
+                    min="0">
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <span>開始試算</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div id="result-container" class="result-container hidden">
+            <h2>試算結果</h2>
+            <div class="result-card">
+                <p class="label">退休總需求 (僅計算基本生活費用)</p>
+                <h3 id="res-need-basic">NT$ 0</h3>
+            </div>
+            <div class="result-card">
+                <p class="label">退休總需求 (加上娛樂費用)</p>
+                <h3 id="res-need-all">NT$ 0</h3>
+            </div>
+            <div class="result-card">
+                <p class="label">預估實際存款累積</p>
+                <h3 id="res-fund">NT$ 0</h3>
+            </div>
+            <div class="result-card highlight">
+                <p class="label">資金缺口 (以含娛樂為準)</p>
+                <h3 id="res-gap">NT$ 0</h3>
+            </div>
+
+            <div class="chart-container" style="position: relative; height:300px; width:100%; margin-top:20px;">
+                <canvas id="resultChart"></canvas>
+            </div>
+
+            <div class="chart-hint">
+                <p>📌 <strong>圖表怎麼看？</strong></p>
+                <p id="chart-hint-text">當綠色線（存款）與橘色線（需求）交叉時，代表存款即將用盡的年齡。</p>
+            </div>
+
+            <div class="calc-assumptions">
+                <p>⚙️ 計算假設條件：通膨率 3% ／ 存款利率 1.5% ／ 預計壽命 100 歲</p>
+            </div>
+
+            <button class="submit-btn" id="next-step-btn" type="button" style="margin-top: 30px;">
+                下一步
+            </button>
+
+            <button class="close-btn" id="close-btn">重新試算</button>
+        </div>
+
+        <!-- 投資理財偏好表單 (預設隱藏) -->
+        <div id="preference-container" class="preference-container hidden">
+            <div class="header" style="margin-top: 0;">
+                <h1 style="font-size: 26px;">投資理財偏好</h1>
+                <p>請輸入目前投資理財的資金占比</p>
+            </div>
+
+            <form id="pref-form">
+                <div class="input-group">
+                    <label for="pref_stock">股票 (%)</label>
+                    <input type="number" id="pref_stock" name="pref_stock" placeholder="例如: 30" min="0" max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_fund">基金 (%)</label>
+                    <input type="number" id="pref_fund" name="pref_fund" placeholder="例如: 20" min="0" max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_insurance">理財型保險 (%)</label>
+                    <input type="number" id="pref_insurance" name="pref_insurance" placeholder="例如: 20" min="0"
+                        max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_demand">活期存款 (%)</label>
+                    <input type="number" id="pref_demand" name="pref_demand" placeholder="例如: 10" min="0" max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_time">定期存款 (%)</label>
+                    <input type="number" id="pref_time" name="pref_time" placeholder="例如: 20" min="0" max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="pref_crypto">加密貨幣 (%)</label>
+                    <input type="number" id="pref_crypto" name="pref_crypto" placeholder="例如: 5" min="0" max="100">
+                </div>
+
+                <p id="pref-error" class="hidden"
+                    style="color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 10px;">總和必須等於 100%
+                </p>
+
+                <button type="submit" class="submit-btn" id="pref-submit-btn">
+                    <span>開始分析</span>
+                    <div class="spinner"></div>
+                </button>
+                <button type="button" class="close-btn" id="pref-back-btn" style="margin-top: 15px;">返回上一步</button>
+            </form>
+        </div>
+
+        <!-- 理財人格結果 (預設隱藏) -->
+        <div id="profile-result-container" class="result-container hidden">
+            <h2>理財人格分析</h2>
+
+            <div class="result-card profile-card" id="profile-card">
+                <p class="label">專屬理財類型</p>
+                <!-- 預留給使用者設計的插畫 -->
+                <img id="profile-img" src="" alt="理財人格圖片" class="hidden"
+                    style="width: 100%; max-width: 250px; border-radius: 10px; margin: 10px auto; display: block;">
+
+                <h3 id="res-profile">判斷中...</h3>
+            </div>
+
+            <p id="res-profile-desc"
+                style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 10px; margin-bottom: 20px;">
+                根據您的資產配置習慣所分析出的類型。
+            </p>
+
+            <button class="close-btn" id="final-close-btn"
+                style="background: var(--primary); color: white; border-color: var(--border-color);">
+                重新試算
+            </button>
+        </div>
+    </div>
+
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="web.js"></script>
+</body>
+
+</html>
